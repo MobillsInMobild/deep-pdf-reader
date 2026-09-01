@@ -142,6 +142,89 @@ section inference, table detection, map serialization/reuse, keyword retrieval,
 section boosting, neighbor expansion, lazy PNG rendering, mock inspection, and
 the end-to-end ask workflow.
 
+## Using as a Codex Skill
+
+This repository includes a current-format Codex Skill at:
+
+```text
+$REPO_ROOT/.agents/skills/deep-pdf-reader/
+```
+
+Codex scans `.agents/skills` from the current working directory up to the
+repository root. Launch Codex anywhere inside this repository to make the Skill
+available. The current official discovery and authoring rules are documented in
+[OpenAI's Build skills guide](https://developers.openai.com/codex/skills/).
+
+Invoke it explicitly in Codex CLI or the IDE extension with:
+
+```text
+$deep-pdf-reader Analyze this annual report and explain the cash-flow decline.
+```
+
+`/skills` can be used to inspect available Skills. Implicit invocation is also
+enabled: Codex can select the Skill for long or visually structured PDF tasks,
+financial/annual/research reports, contracts, manuals, complex tables/charts,
+or questions requiring exact page evidence. It should not trigger for unrelated
+coding work or tiny plain-text documents that can be read normally.
+
+### Install the engine used by the Skill
+
+The Skill orchestrates the existing CLI; it does not copy the Python engine.
+Install the repository package into the environment from which Codex runs:
+
+```bash
+python -m pip install -e "$REPO_ROOT"
+deep-pdf-reader --help
+```
+
+If a virtual environment is used, launch Codex with that environment activated
+so the `deep-pdf-reader` console command is on `PATH`.
+
+### Make the Skill personal/global without copying it
+
+Codex also scans:
+
+```text
+$HOME/.agents/skills/deep-pdf-reader/
+```
+
+Symlink the repository Skill into that location so source and Skill instructions
+remain single-sourced. On macOS/Linux:
+
+```bash
+mkdir -p "$HOME/.agents/skills"
+ln -s "$REPO_ROOT/.agents/skills/deep-pdf-reader" \
+  "$HOME/.agents/skills/deep-pdf-reader"
+```
+
+On Windows PowerShell, from the repository root:
+
+```powershell
+$RepoRoot = (Resolve-Path ".").Path
+New-Item -ItemType Directory -Force "$HOME\.agents\skills" | Out-Null
+New-Item -ItemType SymbolicLink `
+  -Path "$HOME\.agents\skills\deep-pdf-reader" `
+  -Target "$RepoRoot\.agents\skills\deep-pdf-reader"
+```
+
+Codex follows symlinked Skill folders. If a newly linked Skill does not appear,
+restart Codex.
+
+### Skill mode vs standalone mode
+
+```text
+Standalone mode
+User -> deep-pdf-reader ask -> internal PageInspector
+
+Codex Skill mode (preferred inside Codex)
+User -> Codex -> SKILL.md -> build-map/search/render
+     -> Codex visual inspection/reasoning -> page-cited answer
+```
+
+Standalone `ask` remains supported for non-Codex environments. Skill mode uses
+Codex itself for query planning, iterative navigation, visual evidence review,
+and synthesis, avoiding an unnecessary nested VLM call.
+
 ## MVP limitations
 
 - Single local PDF per command; no multi-document corpus or cross-document QA.

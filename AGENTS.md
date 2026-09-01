@@ -8,8 +8,8 @@ These instructions apply to the entire repository.
 2. Treat map summaries, keywords, entities, section inference, retrieval scores,
    and model-generated navigation metadata as untrusted hints.
 3. Important amounts, dates, percentages, units, signs, table relationships,
-   and footnotes in answers must come from `PageInspector` output produced from
-   rendered original PDF pages.
+   and footnotes in answers must come from direct Codex visual inspection or
+   `PageInspector` output produced from rendered original PDF pages.
 4. Render lazily. Do not pre-render or send the whole PDF to a visual model.
 5. Default to a bounded 3-8 candidate pages and allow only explicit, bounded
    secondary retrieval when evidence is insufficient.
@@ -58,6 +58,18 @@ end-to-end ask workflow.
   footnotes, and year-column alignment.
 - An inspector must be able to return structured `insufficient_evidence` without
   fabricating an answer.
+
+## Codex Skill changes
+
+- Keep repository-local skills under `.agents/skills/`; do not introduce the
+  legacy `.codex/skills` layout.
+- Treat `src/deep_pdf_reader` as the deterministic tool layer. Do not duplicate
+  engine logic in Skill scripts.
+- In Codex Skill mode, prefer `build-map`, `search`, and `render`, followed by
+  direct inspection of the rendered page images. Preserve standalone `ask` but
+  do not make it the normal Skill orchestration path.
+- Validate changed Skills with the bundled `skill-creator` validator and keep
+  `agents/openai.yaml` consistent with `SKILL.md`.
 
 ## Documentation
 

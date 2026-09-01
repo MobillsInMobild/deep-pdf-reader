@@ -3,18 +3,66 @@
 ## Core invariant
 
 The document map is a lossy navigation index. It can rank pages, but it cannot
-substantiate an answer. Every important fact in a final answer must be returned
-by a `PageInspector` after it has inspected images rendered from the original
-PDF pages.
+substantiate an answer. Every important fact in a final answer must be verified
+against images rendered from the original PDF pages. In standalone mode that
+verification is returned by a `PageInspector`; in Codex Skill mode Codex
+inspects the page images directly.
 
 This creates an explicit trust boundary:
 
 ```text
 untrusted navigation metadata          authoritative evidence path
-parser -> map -> retrieval -> page IDs -> render original pages -> inspector
+parser -> map -> retrieval -> page IDs -> render original pages -> visual inspection
 ```
 
 The ask workflow never copies numeric facts from a map summary into evidence.
+
+## Engine Layer vs Skill / Agent Layer
+
+The project has two cooperating layers with a deliberate responsibility split:
+
+| Engine Layer (Python) | Skill / Agent Layer (Codex) |
+| --- | --- |
+| Extract PDF text and layout clues | Understand the user's information need |
+| Build, persist, validate, and reuse maps | Decompose complex questions into retrieval queries |
+| Rank sections/pages with lexical retrieval | Interpret candidate sections and choose pages |
+| Expand justified neighboring pages | Visually inspect rendered original pages |
+| Lazily render selected pages | Read tables, charts, diagrams, and footnotes |
+| Expose deterministic CLI primitives | Judge sufficiency and decide on a second retrieval pass |
+| Support standalone `ask` with `PageInspector` | Synthesize verified evidence with exact page citations |
+
+The Python engine does infrastructure-heavy, reproducible work. Codex performs
+the work that benefits from contextual reasoning and native visual inspection.
+This keeps provider-specific reasoning out of mapping/retrieval and avoids
+calling a second VLM when Codex can already inspect the rendered PNGs.
+
+### Codex Skill mode (preferred inside Codex)
+
+```text
+User
+  -> Codex loads .agents/skills/deep-pdf-reader/SKILL.md
+  -> build-map / search / render primitives
+  -> Codex visually inspects original-page PNGs
+  -> bounded query refinement when evidence is insufficient
+  -> answer with verified PDF-page references
+```
+
+Skill mode does not normally call `deep-pdf-reader ask`. The map and retrieval
+scores only guide Codex to pages; Codex owns orchestration, visual verification,
+reasoning, and final citation.
+
+### Standalone mode (preserved)
+
+```text
+User
+  -> deep-pdf-reader ask
+  -> internal retrieval and lazy rendering
+  -> configured PageInspector (or safe mock)
+  -> structured answer/evidence result
+```
+
+Standalone mode remains useful outside Codex and keeps the existing provider
+abstractions intact. It is not a dependency of Skill-mode visual inspection.
 
 ## Package boundaries
 
@@ -72,10 +120,12 @@ that useful.
 
 ### Lazy, bounded visual verification
 
-Retrieval normally selects 3-8 pages. Only those pages are rendered. The
-inspector receives page-numbered image paths and a strict prompt covering table
-headers, units, signs, parentheses, footnotes, and year-column alignment. It
-must report insufficient evidence instead of guessing.
+Retrieval normally selects 3-8 pages. Only those pages are rendered. In
+standalone mode the inspector receives page-numbered image paths and a strict
+prompt covering table headers, units, signs, parentheses, footnotes, and
+year-column alignment. In Skill mode Codex applies the equivalent evidence
+policy directly. Both modes must report insufficient evidence instead of
+guessing.
 
 ### Cache location
 
@@ -91,8 +141,8 @@ global implicit state. A CLI/config override can relocate the cache.
 4. Use map summaries only to select pages.
 5. Expand neighbors for multi-page sections and possible table continuations.
 6. Inspect 3-8 source pages by default.
-7. If the inspector explicitly requests more evidence, perform one bounded
-   second retrieval excluding pages already inspected.
+7. If standalone inspection or the Codex agent identifies a specific evidence
+   gap, perform one bounded second retrieval excluding pages already inspected.
 8. Never treat any retrieval score as evidence.
 
 ## Deferred work
