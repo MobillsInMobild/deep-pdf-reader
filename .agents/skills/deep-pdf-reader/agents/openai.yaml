@@ -1,0 +1,7 @@
+interface:
+  display_name: "Deep PDF Reader"
+  short_description: "Map-guided PDF analysis with verified page evidence"
+  default_prompt: "Use $deep-pdf-reader to analyze a PDF and answer with visually verified page citations."
+
+policy:
+  allow_implicit_invocation: true
