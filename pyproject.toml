@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deep-pdf-reader"
+version = "0.1.0"
+description = "Map-guided, source-page-verified deep reading for a single PDF"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "deep-pdf-reader contributors" }]
+dependencies = [
+  "PyMuPDF>=1.23,<2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<9",
+  "reportlab>=4,<5",
+]
+
+[project.scripts]
+deep-pdf-reader = "deep_pdf_reader.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["deep_pdf_reader"]
+branch = true
