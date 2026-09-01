@@ -1,6 +1,6 @@
 ---
 name: deep-pdf-reader
-description: Analyze long or visually structured PDFs, including annual and financial reports, research reports, contracts, manuals, scanned documents, complex tables, charts, and diagrams, when exact page-level evidence matters. Use a lightweight document map only to navigate, then visually verify claims on rendered source pages. Do not use for unrelated work or tiny plain-text documents that normal reading can handle directly.
+description: Analyze long or visually structured PDFs (长篇 PDF、年报、财务报告、研究报告、合同、手册), including annual and financial reports, research reports, contracts, manuals, scanned documents, complex tables, charts, and diagrams, when exact page-level evidence matters. Use a lightweight document map only to navigate, then visually verify claims on rendered source pages. Do not use for unrelated work or tiny plain-text documents that normal reading can handle directly.
 ---
 
 # Deep PDF Reader
