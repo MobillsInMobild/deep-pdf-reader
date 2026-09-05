@@ -1,5 +1,7 @@
 # deep-pdf-reader
 
+[English](README.md) | [简体中文](README_CN.md)
+
 `deep-pdf-reader` is a small, testable toolkit for answering questions about a
 single PDF without sending the whole document to a vision model.
 
