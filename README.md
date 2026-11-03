@@ -2,6 +2,8 @@
 
 [English](README.md) | [简体中文](README_CN.md)
 
+![deep-pdf-reader workflow: the document map navigates and the source page verifies](docs/assets/deep-pdf-reader-hero.png)
+
 `deep-pdf-reader` is a small, testable toolkit for answering questions about a
 single PDF without sending the whole document to a vision model.
 

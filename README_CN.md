@@ -2,6 +2,8 @@
 
 [English](README.md) | [简体中文](README_CN.md)
 
+![deep-pdf-reader 工作流：Document Map 负责导航，原始页面负责核验](docs/assets/deep-pdf-reader-hero.png)
+
 `deep-pdf-reader` 是一个小巧、可测试的工具包，用于针对单个 PDF 回答问题，同时避免把整份文档发送给视觉模型。
 
 它遵循一条核心原则：
